@@ -718,9 +718,9 @@ useEffect(() => {
       {
         userName !== '' && sortedItems.length > 0 ? (
       <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow' style={{background: `url(${storedAvatar})`, backgroundColor: 'rgba(0, 0, 0, 0.6)', backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundPositionX: '50%', backgroundPositionY: '50%'}}>
-        <div className='d-flex justify-content-between align-items-center'><span>Upcoming Item</span></div>
+        <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
         <h2 className='fw-bold'>{sortedItems[0]?.name},</h2>
-        <div className='d-flex justify-content-between align-items-center'><small>Time: {sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'white', cursor: 'pointer' }}></ion-icon></div></div>
+        <div className='d-flex justify-content-between align-items-center'><small>Time: {sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer' }}></ion-icon></div></div>
       </div>
         ) : (
           <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow' style={{background: `url(${storedAvatar})`, backgroundColor: 'rgba(0, 0, 0, 0.6)', backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundPositionX: '50%', backgroundPositionY: '50%'}}>
@@ -729,7 +729,7 @@ useEffect(() => {
         )
       }
       <div className='container p-3 mt-3'>
-        <div className='d-flex justify-content-between align-items-center'> <div className='d-flex justify-content-between align-items-center gap-3'><Avatar className='' src={storedAvatar}/> {userName !== '' &&  sortedItems.length > 0 && <small>Upcoming: <strong>{sortedItems[0]?.name}</strong> @{sortedItems[0]?.time}, {sortedItems[0]?.date}</small>}</div> <ion-icon onClick={handleClickAdd} role='button' name="add-circle-outline" style={{cursor: 'pointer'}}></ion-icon></div>
+        <div className='d-flex justify-content-between align-items-center'> <div className='d-flex justify-content-between align-items-center gap-3'><Avatar className='' src={storedAvatar}/> {userName !== '' &&  sortedItems.length > 0 && <small>Upcoming: <strong className='upcomindTitle'>{sortedItems[0]?.name}</strong> @{sortedItems[0]?.time}, {sortedItems[0]?.date}</small>}</div> <ion-icon onClick={handleClickAdd} role='button' name="add-circle-outline" style={{cursor: 'pointer'}}></ion-icon></div>
         <div className='mt-3 mb-3'>
           <input className='p-3 rounded-3 w-100 border-0 itemBg' style={{color: darkMode ? 'white' : 'black'}} type='search' value={search}
           onChange={(e) => handleSearch(e.target.value)}
@@ -807,7 +807,7 @@ useEffect(() => {
                 <a href='https://open.spotify.com/user/31uk62sl7qzzfdry74zbulgvumri'><i className="fa-brands fa-spotify"></i></a>
                 <a href='https://www.blogger.com/blog/posts/205945650435362831?bpli=1&pli=1'><i className="fa-solid fa-blog"></i></a>
           </div>
-          <p>Copyright ©2025 All Rights Reserved | Designed & Developed by Austine Oduk <a href='https://github.com/DevOduk'>See Github Profile</a></p>
+          <p>Copyright ©2025 All Rights Reserved | Designed & Developed by Austine Oduk <a className='link' href='https://github.com/DevOduk'>See Github Profile</a> | <a className='link' href='https://austine-oduk.vercel.app'>See Portfolio</a></p>
         </footer>
     </div>
   );

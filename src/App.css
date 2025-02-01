@@ -12,7 +12,7 @@
   --bg-color: #0A1014;
   --text-color: #ffffff;
   --item-bg: #11212D;
-  --primary-color: #e8e8e8;
+  --primary-color: rgba(39, 251, 255, 0.775);
 }
 
 /* Apply styles */
@@ -37,7 +37,7 @@ body {
 
 
 
-.greetingMenu {
+.greetingMenu, .upcomindTitle {
   color: var(--primary-color);
 }
 .logo {
@@ -104,6 +104,10 @@ footer {
   i {
     font-size: 1.5rem;
     color: var(--primary-color);
+  }
+  .link {
+    color: var(--primary-color);
+    text-decoration: underline;
   }
   p{
       line-height: 1;
