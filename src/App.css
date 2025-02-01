@@ -22,7 +22,7 @@ body {
   transition: all 0.3s ease;
 }
 .menuBox {
-  background-color: var(--bg-color);
+  background-color: var(--item-bg);
   transition: all 0.3s ease;
 }
 .itemBg {
@@ -92,7 +92,69 @@ body {
   z-index: 757575757577575757757575;
 }
 
+footer {
+  background-color: var(--item-bg);
+  padding-bottom: 50px;
+  padding-top: 70px;
+  position: relative;
+  margin-top: 70px;
+  svg path {
+          fill: white;
+      }
+  i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+  p{
+      line-height: 1;
+      margin: 0%;
+  }
+  .toTop {
+      cursor: pointer;
+      width: fit-content;
+      height: fit-content;
+      top: -30px;
+      right: 50% !important;
+      background-color: transparent;
+      display: flex;
+      margin: 0;
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      padding: 7px;
+      transform: rotate(180deg) translateX(-50%) !important;
+      svg path {
+        fill: var(--primary-color);
+      }
+  }
+}
 
+.cookies {
+  background-color: #11212D;
+  width: 500px;
+  padding: 25px;
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  color: white;
+  z-index: 15;
+  font-size: .9rem;
+  div {
+    display: flex;
+    gap: 20px;
+    button {
+      background-color: transparent;
+      color: rgba(220, 220, 220, 0.858);
+      outline: none;
+      border: none;
+      border-bottom: 1px solid rgba(220, 220, 220, 0.878);
+    }
+    button:hover {
+      color: white;
+      border-bottom: 1px solid white;
+    }
+  }
+}
 
 
 
