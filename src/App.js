@@ -15,6 +15,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
+import { NoteAltOutlined } from '@mui/icons-material';
+import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 
 
 
@@ -159,7 +161,7 @@ function App() {
   const [userName, setUserName] = useState('');  
   const [selectedAvatar, setSelectedAvatar] = useState(avatars[Math.floor(Math.random() * avatars.length)]);  
   const [storedAvatar, setStoredAvatar] = useState('');  
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [showConfirmDeletion, setShowConfirmDeletion] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -643,12 +645,12 @@ useEffect(() => {
                 <div className='p-2 mb-2 rounded-2 d-flex gap-4' role={'button'} onClick={()=> {
                   // window.location.reload();
                 }}>
-                  <LogoutIcon /> Notepad/diary
+                  <NoteAltOutlined /> Notepad/diary
                 </div>
                 <div className='p-2 mb-2 rounded-2 d-flex gap-4' role={'button'} onClick={()=> {
                   // window.location.reload();
                 }}>
-                  <LogoutIcon /> Download App
+                  <PhoneAndroidIcon /> Download App
                 </div>
                 {
                   userName !== '' ? (
