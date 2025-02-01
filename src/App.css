@@ -1,0 +1,129 @@
+
+/* Default (Light Mode) */
+:root {
+  --bg-color: rgb(251, 251, 251);
+  --item-bg: whitesmoke;
+  --text-color: #000000;
+  --primary-color: #3e00c3;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --bg-color: #0A1014;
+  --text-color: #ffffff;
+  --item-bg: #11212D;
+  --primary-color: #e8e8e8;
+}
+
+/* Apply styles */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+.menuBox {
+  background-color: var(--bg-color);
+  transition: all 0.3s ease;
+}
+.itemBg {
+  background-color: var(--item-bg);
+  color: var(--text-color);
+}
+
+
+
+
+
+
+
+
+.greetingMenu {
+  color: var(--primary-color);
+}
+.logo {
+  height: 50px;
+}
+.Home {
+  ion-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+  }
+  .item {
+    align-items: center;
+    h5 {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    ion-icon {
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  }
+  .item:hover {
+    transition: .2s ease-in;
+    input {
+      cursor: pointer;
+    }
+  }
+}
+.strikethrough {
+  color: rgba(128, 128, 128, 0.835) !important;
+  text-decoration: line-through;
+}
+
+.activeAvatar {
+  border: 1px solid #3e00c3;
+  img {
+    filter: brightness(60%);
+    background-color: rgba(0, 0, 0, 0.752);
+  }
+}
+.activeAvatar::before  {
+  content: '';
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  border-radius: 1px;
+  width: 15px;
+  height: 7px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%) rotate(-45deg);
+  z-index: 757575757577575757757575;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 700px) {
+  .heroBanner {
+    max-width: 95% !important;
+    margin-top: 15px !important;
+    height: 28vh !important;
+  }
+  .upcomingBanner {
+    max-width: 95% !important;
+    margin-top: 15px !important;
+    /* height: 28vh !important; */
+  }
+}
