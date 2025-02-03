@@ -33,15 +33,30 @@ body {
 
 
 
+.bgColorBlend {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+.notepadBreadcrumm:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+textarea:active, textarea:focus {
+  border: none;
+  outline: none;
+}
 
-
-
-
-.greetingMenu, .upcomindTitle {
+.greetingMenu {
   color: var(--primary-color);
+}
+.upcomindTitle {
+  color: rgba(39, 251, 255, 0.775);
 }
 .logo {
   height: 50px;
+}
+.notepadContainer a, .notepadContainer svg path, .notepadContainer p {
+  color: var(--text-color)!important;
+  fill: var(--text-color)!important;
 }
 .Home {
   ion-icon {
@@ -159,6 +174,27 @@ footer {
     }
   }
 }
+.backButton {
+  cursor: pointer;
+  background-color: var(--item-bg);
+  width: 13rem;
+}
+
+
+
+
+
+
+
+.NotepadPage {
+  .noteUpcoming {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 3rem;
+    max-height: 3rem;
+  }
+}
 
 
 
@@ -167,15 +203,17 @@ footer {
 
 
 
-
-
-
-
-
-
-
-
-
+.heroBanner {
+  background: url("/public/green-nature-tgy6dtxhgtwubez9.jpg") !important;
+  background-color: gray !important;
+  background-position: center !important;
+  object-fit: cover !important;
+  height: 35vh !important;
+  background-blend-mode: multiply !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
+}
 
 
 

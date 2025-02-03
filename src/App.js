@@ -8,15 +8,22 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { motion } from 'framer-motion';
-import { fadeIn } from './variants';
+// import { fadeIn } from './variants';
 import { Alert, Avatar, AvatarGroup } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
-import { NoteAltOutlined } from '@mui/icons-material';
+import { AddCircleOutline, NoteAltOutlined } from '@mui/icons-material';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import Typography from '@mui/material/Typography';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { BrowserRouter as Router, useNavigate, useLocation } from "react-router-dom";
+
+
 
 
 
@@ -133,7 +140,7 @@ const checkDate = (dateString) => {
 
 
 
-function App() {
+function Page() {
   const [items, setItems] = useState(() => {
     return JSON.parse(localStorage.getItem('MyItems')) || [
       {"id":"#1a2b3c4d5e6f","name":"Go fishing and hunting in the evening","time":"13:00","date":"2025-02-05","complete":true},
@@ -150,7 +157,16 @@ function App() {
       {"id":"#2o3p4q5r6s7t","name":"Meditation and relaxation","time":"20:30","date":"2025-02-16","complete":false},
       {"id":"#3u4v5w6x7y8z","name":"Clean and organize workspace","time":"10:00","date":"2025-02-17","complete":false},
       {"id":"#4a5b6c7d8e9f","name":"Call an old friend","time":"15:00","date":"2025-02-18","complete":false},
-      {"id":"#5g6h7i8j9k0l","name":"Start a new project","time":"09:30","date":"2025-02-19","complete":false}    
+      {"id":"#5g6h7i8j9k0l","name":"Start a new project","time":"09:30","date":"2025-02-19","complete":false}     
+    ]; // Load existing items from localStorage or default to []
+  });
+  const [notes, setNotes ] = useState(() => {
+    return JSON.parse(localStorage.getItem('MyNotes')) || [
+      {"id":"#2g3h4i5jkehrt8957tgj6k7l", "notes": "This is the content of the notes here eh! Noice...", "title":"Attend a morning yoga session","time":"07:00","date":"2025-02-06","emoji":'❤️'},
+      {"id":"#3m4n5o6jkehrt8957tgp7q8r", "notes": "This is the content of the notes here eh! Noice...", "title":"Finish reading a novel","time":"20:00","date":"2025-02-07","emoji":'❤️'},
+      {"id":"#4s5t6u7jkehrt8957tgv8w9x", "notes": "This is the content of the notes here eh! Noice...", "title":"Visit the museum","time":"11:00","date":"2025-02-08","emoji":'❤️'},
+      {"id":"#5y6z7a8jkehrt8957tgb9c0d", "notes": "This is the content of the notes here eh! Noice...", "title":"Grocery shopping","time":"16:00","date":"2025-02-09","emoji":'❤️'},
+      {"id":"#6e7f8g9jkehrt8957tgh0i1j", "notes": "This is the content of the notes here eh! Noice...", "title":"Go for a bike ride","time":"14:30","date":"2025-02-10","emoji":'❤️'},   
     ]; // Load existing items from localStorage or default to []
   });
   const [darkMode, setDarkMode ] = useState(() => {
@@ -344,13 +360,15 @@ function App() {
     }, []);
   
 
-const [userProfile, setUserProfile] = useState('./s-l1200.jpg')
 const [showProfile, setShowProfile] = useState(false)
 const [completedItems, setCompletedItems] = useState(0)
 const [success, setSuccess] = useState(-200)
 const [successMessage, setSuccessMessage] = useState('')
 const [deleteItemId, setDeleteItemId] = useState(null);
+const [notePad, setNotePad] = useState(false);
+const [noteView, setNoteView] = useState(false);
 const [audioSrc, setAudioSrc] = useState(null);
+const [viewNote, setViewNote] = useState(null);
 const audioRef = useRef(null);
     // Convert file to blob and create a URL
 
@@ -358,13 +376,31 @@ const audioRef = useRef(null);
 
 
 
+
     
+  const navigate = useNavigate();
+  const location = useLocation();
+
+
 useEffect(() => {
-  const savedImage = localStorage.getItem('todoImage');
-  if (savedImage) {
-      setUserProfile(savedImage)
+  if(location.pathname === "/notepad"){
+    setNotePad(true);
+  } else {
+    navigate("/", { replace: true });
   }
 }, [])
+
+
+
+
+
+    
+// useEffect(() => {
+//   const savedImage = localStorage.getItem('todoImage');
+//   if (savedImage) {
+//       setUserProfile(savedImage)
+//   }
+// }, [])
 
 useEffect(() => {
   const completed = items.filter((item, index)=> item.complete);
@@ -653,7 +689,7 @@ useEffect(() => {
         <Avatar className='border' src={storedAvatar} onClick={()=> setShowProfile(true)}/>
           {
             showProfile && (
-              <motion.div ref={profileRef} className='rounded-4 p-2 menuBox shadow-lg' style={{width: '330px', position: 'absolute', right: 0, top: 0}}
+              <motion.div ref={profileRef} className='rounded-4 p-2 menuBox shadow-lg' style={{width: '330px', zIndex: 64646464, position: 'absolute', right: 0, top: 0}}
               variants={{
                 hidden: { opacity: 0, x: 140, y: -120, scale: 0 }, // Start from top-right
                 show: { 
@@ -673,6 +709,9 @@ useEffect(() => {
                 <div className='p-2 fw-bold text-center greetingMenu' style={{}}>Hi {userName ? userName : 'User'},</div> 
                 <div className='p-2 mb-2 rounded-2 d-flex gap-4' role={'button'} onClick={()=> {
                   // window.location.reload();
+                  setNotePad(true);
+                  setShowProfile(false);
+                  navigate("/notepad", { replace: false });
                 }}>
                   <NoteAltOutlined /> Notepad/diary
                 </div>
@@ -711,77 +750,205 @@ useEffect(() => {
           }
         </div>
       </nav>
-      <div className='container heroBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow' style={{background: 'url("./green-nature-tgy6dtxhgtwubez9.jpg")', backgroundColor: 'gray', backgroundPosition: 'center', objectFit: 'cover', height: '35vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundPositionX: '50%', backgroundPositionY: '50%'}}>
-        <h2 className='fw-bold'>{userName ? 'Welcome back '+userName.split(' ')[0] : 'Welcome to ToDo'},</h2>
-        <div className='d-flex justify-content-between align-items-center'><small>Having a good {(new Date()).getHours() <= 12 ? 'morning' : (new Date()).getHours() >= 19 ? 'night' : "afternoon"}?</small> <small>{currentTime}</small></div>
-      </div>
-      {
-        userName !== '' && sortedItems.length > 0 ? (
-      <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow' style={{background: `url(${storedAvatar})`, backgroundColor: 'rgba(0, 0, 0, 0.6)', backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundPositionX: '50%', backgroundPositionY: '50%'}}>
-        <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
-        <h2 className='fw-bold'>{sortedItems[0]?.name},</h2>
-        <div className='d-flex justify-content-between align-items-center'><small>Time: {sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer' }}></ion-icon></div></div>
-      </div>
-        ) : (
-          <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow' style={{background: `url(${storedAvatar})`, backgroundColor: 'rgba(0, 0, 0, 0.6)', backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundPositionX: '50%', backgroundPositionY: '50%'}}>
-            <h5 className='fw-bold text-center'>No Upcoming Items</h5>
-          </div>
-        )
-      }
-      <div className='container p-3 mt-3'>
-        <div className='d-flex justify-content-between align-items-center'> <div className='d-flex justify-content-between align-items-center gap-3'><Avatar className='' src={storedAvatar}/> {userName !== '' &&  sortedItems.length > 0 && <small>Upcoming: <strong className='upcomindTitle'>{sortedItems[0]?.name}</strong> @{sortedItems[0]?.time}, {sortedItems[0]?.date}</small>}</div> <ion-icon onClick={handleClickAdd} role='button' name="add-circle-outline" style={{cursor: 'pointer'}}></ion-icon></div>
-        <div className='mt-3 mb-3'>
-          <input className='p-3 rounded-3 w-100 border-0 itemBg' style={{color: darkMode ? 'white' : 'black'}} type='search' value={search}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder='Search item...' />
-        </div>
-        <div className='mt-5 mb-4 d-flex flex-column gap-4' style={{minHeight: 'none'}}>
-          {
-            userName === '' ? (
-          <div className='border itemBg p-2 gap-2 d-flex flex-column justify-content-center align-items-center' style={{height: '30vh'}}>
-            <ion-icon role='button' name="alert-circle-outline" style={{color: 'red'}}></ion-icon>
-            You do not have any item in you To-do
-            <p><small>Login & Create a new item to get started.</small></p>
-          </div>
-            ) : (
-              filteredItems.map((item, index)=> (             
-              <div
-                key={index}
-                className={`item rounded p-3 py-4 d-flex gap-3 itemBg ${item.complete ? 'completed' : ''}`}
-                style={{ backgroundColor: item.complete ? (darkMode ? 'transparent' : 'white') : darkMode ? '#11212D' : 'whitesmoke', border: item.complete ? (darkMode ? '1px solid rgba(128, 128, 128, 0.835)' : '1px solid gainsboro') : darkMode ? '' : '1px solid gray'}}
-                >
-                <input
-                  style={{ height: '20px', width: '20px' }}
-                  type="checkbox"
-                  checked={item.complete}
-                  onChange={() => {
-                    toggleComplete(item.id);
-                    successAlert('"' + item.name + '"'+ ' completed successfully!', item.complete)
-                  }}
-                />
-                <div className="ml-3" style={{ flex: 1 }}>
-                  <h5 className={item.complete ? 'strikethrough' : ''}>{item.name}</h5>
-                  <small  className={item.complete ? 'strikethrough' : ''}>{item.time} | {checkDate(item.date)}</small>
-                </div>
-                <ion-icon role="button" name="pencil-outline" style={{ color: 'blue' }}></ion-icon>
-                <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(item.id)} style={{ color: 'red' }}></ion-icon>
-              </div>
-              ))
-            )
-          }
-          {/* <div className='item border p-2 px-3 d-flex gap-3' style={{backgroundColor: 'whitesmoke'}}>
-            <input style={{height: '60px'}} type='checkbox' checked={true} />
-            <div className='ml-3' style={{flex: 1}}>
-              <h5>Go to the gym!</h5>
-              <small>18:00 Today</small>
+
+
+      <div className='' style={{ width: '100%', overflow: 'hidden' }}>
+        <div className='d-flex' style={{ width: '300vw', transition: 'transform 0.5s ease-in-out', transform: `translateX(${notePad ? (noteView ? '-200vw' : '-100vw') : '0vw'})` }}>
+
+
+
+
+
+          <div className='HomePage' style={{ width: '100vw', zIndex: 1 }}>
+            <div className='container heroBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow' style={{}}>
+              <h2 className='fw-bold'>{userName ? 'Welcome back '+userName.split(' ')[0] : 'Welcome to ToDo'},</h2>
+              <div className='d-flex justify-content-between align-items-center'><small>Having a good {(new Date()).getHours() <= 12 ? 'morning' : (new Date()).getHours() >= 19 ? 'night' : "afternoon"}?</small> <small>{currentTime}</small></div>
             </div>
-            <ion-icon role='button' name="pencil-outline" style={{color: 'blue'}}></ion-icon>
-            <ion-icon role='button' name="trash-outline" style={{color: 'red'}}></ion-icon>
-          </div> */}
+            {
+              userName !== '' && sortedItems.length > 0 ? (
+            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+              <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
+              <h2 className='fw-bold'>{sortedItems[0]?.name},</h2>
+              <div className='d-flex justify-content-between align-items-center'><small>Time: {sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer' }}></ion-icon></div></div>
+            </div>
+              ) : (
+                <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+                  <h5 className='fw-bold text-center'>No Upcoming Items</h5>
+                </div>
+              )
+            }
+            <div className='container p-3 mt-3'>
+              <div className='d-flex justify-content-between align-items-center'> <div className='d-flex justify-content-between align-items-center gap-3'><Avatar className='' src={storedAvatar}/> {userName !== '' &&  sortedItems.length > 0 && <small>Upcoming: <strong className='upcomindTitle'>{sortedItems[0]?.name}</strong> @{sortedItems[0]?.time}, {sortedItems[0]?.date}</small>}</div> <ion-icon onClick={handleClickAdd} role='button' name="add-circle-outline" style={{cursor: 'pointer'}}></ion-icon></div>
+              <div className='mt-3 mb-3'>
+                <input className='p-3 rounded-3 w-100 border-0 itemBg' style={{color: darkMode ? 'white' : 'black'}} type='search' value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder='Search item...' />
+              </div>
+              <div className='mt-5 mb-4 d-flex flex-column gap-4' style={{minHeight: 'none'}}>
+              <h4 className='mb-3'><strong>My ToDo Items</strong></h4>
+                {
+                  userName === '' ? (
+                <div className='border itemBg p-2 gap-2 d-flex flex-column justify-content-center align-items-center' style={{height: '30vh'}}>
+                  <ion-icon role='button' name="alert-circle-outline" style={{color: 'red'}}></ion-icon>
+                  You do not have any item in you To-do
+                  <p><small>Login & Create a new item to get started.</small></p>
+                </div>
+                  ) : (
+                    filteredItems.map((item, index)=> (             
+                    <div
+                      key={index}
+                      className={`item rounded p-3 py-4 d-flex gap-3 itemBg ${item.complete ? 'completed' : ''}`}
+                      style={{ backgroundColor: item.complete ? (darkMode ? 'transparent' : 'white') : darkMode ? '#11212D' : 'whitesmoke', border: item.complete ? (darkMode ? '1px solid rgba(128, 128, 128, 0.835)' : '1px solid gainsboro') : darkMode ? '' : '1px solid gray'}}
+                      >
+                      <input
+                        style={{ height: '20px', width: '20px' }}
+                        type="checkbox"
+                        checked={item.complete}
+                        onChange={() => {
+                          toggleComplete(item.id);
+                          successAlert('"' + item.name + '"'+ ' completed successfully!', item.complete)
+                        }}
+                      />
+                      <div className="ml-3" style={{ flex: 1 }}>
+                        <h5 className={item.complete ? 'strikethrough' : ''}>{item.name}</h5>
+                        <small  className={item.complete ? 'strikethrough' : ''}>{item.time} | {checkDate(item.date)}</small>
+                      </div>
+                      <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(item.id)} style={{ color: 'red' }}></ion-icon>
+                    </div>
+                    ))
+                  )
+                }
+                {/* <div className='item border p-2 px-3 d-flex gap-3' style={{backgroundColor: 'whitesmoke'}}>
+                  <input style={{height: '60px'}} type='checkbox' checked={true} />
+                  <div className='ml-3' style={{flex: 1}}>
+                    <h5>Go to the gym!</h5>
+                    <small>18:00 Today</small>
+                  </div>
+                  <ion-icon role='button' name="pencil-outline" style={{color: 'blue'}}></ion-icon>
+                  <ion-icon role='button' name="trash-outline" style={{color: 'red'}}></ion-icon>
+                </div> */}
+              </div>
+      
+              <div className='text-center mt-4'>Completed <strong>{completedItems}</strong> of <strong>{items.length}</strong></div>
+            </div>
+          </div>
+
+
+
+
+
+
+
+
+        <div className='NotepadPage' style={{width: '100vw' }}>
+          <div className='container notepadContainer py-3'>
+            <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize='small' />}>
+              <Link underline="hover" color="inherit" href="/#" onClick={()=> {
+                setNotePad(false);
+                navigate("/", { replace: false });
+              }}>
+                Home
+              </Link>
+              <Typography sx={{ color: 'text.primary' }}>Notepad</Typography>
+            </Breadcrumbs>
+          </div>
+        <div className='container d-flex' style={{gap: '20px'}}>            {
+              userName !== '' && sortedItems.length > 0 ? (
+                <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, backgroundPosition: 'center', objectFit: 'cover', height: '25vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', width: 'calc(50% - 10px)'}}>
+              <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
+              <h2 className='fw-bold noteUpcoming'>{sortedItems[0]?.name}</h2>
+              <div className='d-flex justify-content-between align-items-center'><p>Add a note for this event.</p></div>
+              <div className='d-flex justify-content-between align-items-center'><small>{sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
+            </div>
+              ) : (
+                <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, backgroundPosition: 'center', objectFit: 'cover', height: '25vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', width: 'calc(50% - 10px)'}}>
+                  <h5 className='fw-bold text-center'>No Upcoming Items</h5>
+                </div>
+              )
+            }
+          <div role='button' className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light align-items-center justify-content-center rounded-5 shadow' style={{flex: 1, backgroundColor: 'rgba(0, 0, 0)', height: '25vh'}}>
+            <h1 className='fw-bold upcomindTitle'><AddCircleOutline fontSize='large'/></h1>
+          </div>
+        </div>
+      
+      <div className='container'>
+        <h4 className='mb-3'><strong>My Notes</strong></h4>
+        {
+          notes.length > 0 ? notes.map((note, index)=> (
+            <div key={index} role='button' onClick={()=> {
+              navigate("/notepad/"+note.id, { replace: false });
+              setNoteView(true);
+              setViewNote(note);
+            }}
+            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+                <h2 className='fw-bold upcomindTitle noteUpcoming'>{note.title}</h2>
+                  <div className='d-flex justify-content-between align-items-center'><small>{note.notes}</small></div>
+                  <div className='d-flex justify-content-between align-items-center'><small>{note.emoji} Last editted: {note.time}, {note.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(note.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
+              </div>
+          )) : (
+            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+              <h5 className='fw-bold text-center'>No Upcoming Items</h5>
+            </div>
+          )
+        }
+      </div>
+      
         </div>
 
-        <div className='text-center mt-4'>Completed <strong>{completedItems}</strong> of <strong>{items.length}</strong></div>
+
+
+
+
+        
+
+        <form className='SingleNotePage' style={{width: '100vw' }}>
+            <div className='container notepadContainer py-3'>
+              <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize='small' />}>
+                <Link underline="hover" color="inherit" href="/#" onClick={()=> {
+                  setNotePad(false);
+                  navigate("/", { replace: false });
+                }}>
+                  Home
+                </Link>
+                <Link underline="hover" color="inherit" className='notepadBreadcrumm' onClick={()=> {
+                  navigate("/notepad", { replace: false });
+                  setNoteView(false);
+                  setNotePad(true);
+                }}>
+                  Notepad
+                </Link>
+                <Typography sx={{ color: 'text.primary' }}>Go home and have a rest</Typography>
+              </Breadcrumbs>
+            </div>
+  
+              <div 
+            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}              >
+                <div className='d-flex justify-content-end align-items-center'><div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
+                <div>
+                  <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Edit Item</h5></div>
+                  <h2 className='fw-bold noteUpcoming'>{viewNote ? viewNote.title : 'Loading...'}</h2>
+                </div>
+              </div>
+  
+              <div className='container upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bg-black' >
+                <textarea className='rounded-4 border-0 bg-transparent text-light fs-5' placeholder='Write here...' style={{minHeight: '50vh', lineHeight: 2}} value={viewNote?.notes}>
+                  
+                </textarea>
+              </div>
+              <div className='container d-flex justify-content-end p-0'><Button className='m-0 text-light border w-100 rounded-3 p-2' style={{backgroundColor: '#3e00c3', minWidth: '200px'}}>Update Changes</Button></div>
+        </form>
+
+
+
+
+
+
+        </div>
       </div>
+
+
+
+
       {/* <motion.div className='bg-black container rounded-3 text-light text-center p-4 dark mb-3 d-flex fs-4 justify-content-center align-items-center' style={{height: '50vh'}} variants={fadeIn("right", 0.2)} initial={'hidden'} whileInView={"show"} viewport={{once: false, amount: 0.2}} number={1}> Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 Box 1 </motion.div> */}
       { !acceptCookies &&(
         <div className='cookies'>
@@ -811,6 +978,14 @@ useEffect(() => {
         </footer>
     </div>
   );
-}
+};
+
+const App = () => {
+  return (
+    <Router>
+      <Page />
+    </Router>
+  );
+};
 
 export default App;
