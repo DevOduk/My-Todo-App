@@ -8,7 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { motion } from 'framer-motion';
-// import { fadeIn } from './variants';
+import MoodIcon from '@mui/icons-material/Mood';
 import { Alert, Avatar, AvatarGroup } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -124,8 +124,16 @@ const checkDate = (dateString) => {
 
 
 
-
-
+const currentDateTime = (current)=> {
+  const newDate = new Date();
+  const time = String(newDate.getHours()).padStart(2, '0')+':'+ String(newDate.getMinutes()).padStart(2, '0');
+  const year = newDate.getFullYear(); // Get full year (2025)
+  const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Get month (0-based, so add 1)
+  const day = String(newDate.getDate()).padStart(2, '0'); // Get day
+  
+  const formattedDate = `${year}-${month}-${day}`;
+  return current === 'time' ? time : formattedDate;
+}
 
 
 
@@ -141,6 +149,18 @@ const checkDate = (dateString) => {
 
 
 function Page() {
+  const [showProfile, setShowProfile] = useState(false)
+  const [completedItems, setCompletedItems] = useState(0)
+  const [success, setSuccess] = useState(-200)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [notePad, setNotePad] = useState(false);
+  const [noteView, setNoteView] = useState(false);
+  const [audioSrc, setAudioSrc] = useState(null);
+  const [viewNote, setViewNote] = useState(null);
+  const audioRef = useRef(null); 
+  const navigate = useNavigate();
+  const location = useLocation();  
   const [items, setItems] = useState(() => {
     return JSON.parse(localStorage.getItem('MyItems')) || [
       {"id":"#1a2b3c4d5e6f","name":"Go fishing and hunting in the evening","time":"13:00","date":"2025-02-05","complete":true},
@@ -162,11 +182,7 @@ function Page() {
   });
   const [notes, setNotes ] = useState(() => {
     return JSON.parse(localStorage.getItem('MyNotes')) || [
-      {"id":"#2g3h4i5jkehrt8957tgj6k7l", "notes": "This is the content of the notes here eh! Noice...", "title":"Attend a morning yoga session","time":"07:00","date":"2025-02-06","emoji":'❤️'},
-      {"id":"#3m4n5o6jkehrt8957tgp7q8r", "notes": "This is the content of the notes here eh! Noice...", "title":"Finish reading a novel","time":"20:00","date":"2025-02-07","emoji":'❤️'},
-      {"id":"#4s5t6u7jkehrt8957tgv8w9x", "notes": "This is the content of the notes here eh! Noice...", "title":"Visit the museum","time":"11:00","date":"2025-02-08","emoji":'❤️'},
-      {"id":"#5y6z7a8jkehrt8957tgb9c0d", "notes": "This is the content of the notes here eh! Noice...", "title":"Grocery shopping","time":"16:00","date":"2025-02-09","emoji":'❤️'},
-      {"id":"#6e7f8g9jkehrt8957tgh0i1j", "notes": "This is the content of the notes here eh! Noice...", "title":"Go for a bike ride","time":"14:30","date":"2025-02-10","emoji":'❤️'},   
+      {"id":"#3m4n5o6jkehrt8957tgp7q8r", "notes": "Will finish reading chapter 4 of the novel \"Rich Dad Poor Dad\". Ensure to mark down page markers and bookmarks! Noice...", "title":"Finish reading a novel","time":"08:00","date":"2025-05-07","emoji":'😊'}
     ]; // Load existing items from localStorage or default to []
   });
   const [darkMode, setDarkMode ] = useState(() => {
@@ -177,6 +193,8 @@ function Page() {
   const [userName, setUserName] = useState('');  
   const [selectedAvatar, setSelectedAvatar] = useState(avatars[Math.floor(Math.random() * avatars.length)]);  
   const [storedAvatar, setStoredAvatar] = useState('');  
+  const [newNoteEdit, setNewNoteEdit] = useState('');  
+  const [newNoteTitleEdit, setNewNoteTitleEdit] = useState('');  
   const [open, setOpen] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [showConfirmDeletion, setShowConfirmDeletion] = useState(false);
@@ -193,6 +211,27 @@ function Page() {
     profilePic: selectedAvatar,
     date: new Date()
   }); 
+  const [newNote, setNewNote] = useState({
+    id: viewNote?.id || RandomId(21),
+    notes: newNoteEdit,
+    title: newNoteTitleEdit,
+    time: currentDateTime('time'),
+    date: currentDateTime('date'),
+    emoji: '🎬',
+  });
+
+  useEffect(() => {
+    setNewNote(prev => ({
+      ...prev,
+      notes: newNoteEdit,
+      title: newNoteTitleEdit,
+      time: currentDateTime('time'),
+      date: currentDateTime('date')
+    }));
+  }, [viewNote?.id, newNoteEdit, newNoteTitleEdit])
+  
+  // console.log(currentDateTime('time'))
+
   
   const handleChange = (e) => {
     setNewUser(prev => ({
@@ -360,30 +399,12 @@ function Page() {
     }, []);
   
 
-const [showProfile, setShowProfile] = useState(false)
-const [completedItems, setCompletedItems] = useState(0)
-const [success, setSuccess] = useState(-200)
-const [successMessage, setSuccessMessage] = useState('')
-const [deleteItemId, setDeleteItemId] = useState(null);
-const [notePad, setNotePad] = useState(false);
-const [noteView, setNoteView] = useState(false);
-const [audioSrc, setAudioSrc] = useState(null);
-const [viewNote, setViewNote] = useState(null);
-const audioRef = useRef(null);
-    // Convert file to blob and create a URL
-
-
-
-
 
 
     
-  const navigate = useNavigate();
-  const location = useLocation();
-
 
 useEffect(() => {
-  if(location.pathname === "/notepad"){
+  if(location.pathname === "/notepad" || location.pathname.includes('/notepad/#')){
     setNotePad(true);
   } else {
     navigate("/", { replace: true });
@@ -429,9 +450,11 @@ useEffect(() => {
 
 const handleSearch = (searchParam) => {
   setSearch(searchParam); // Ensure the state updates
-  const filteredSearch = items.filter((item) =>
+  const filteredSearch = items
+  .filter((item) => 
     item.name.toLowerCase().includes(searchParam.toLowerCase())
-  );
+  )
+  .sort((a, b) => new Date(a.date) - new Date(b.date));
   setFilteredItems(filteredSearch);
 };
 const today = new Date();
@@ -439,7 +462,6 @@ today.setHours(0, 0, 0, 0);
 
 const sortedItems = items
 .filter(item => item.complete !== true)
-
 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
 
@@ -542,10 +564,32 @@ useEffect(() => {
 }, [userCookies])
 
 
+
+
+const handleNoteEdit = (e, id) => {
+  e.preventDefault();
+
+  const updatedNotes = notes.filter((item) => item.id !== id);
+
+  // Correct way to update state
+  setNotes([...updatedNotes, newNote]);
+
+  if(notes.length - updatedNotes.length === 1){
+    successAlert('Note updated Successfully!', false)
+    localStorage.setItem('MyNotes', JSON.stringify(notes));
+  } else {
+    alert('There was an error updating note!')
+  }
+
+
+
+};
+
+
   return (
     <div className="Home">
       <audio ref={audioRef} src={audioSrc} />
-      <Alert className='container shadow-lg' style={{maxWidth: '500px', position: 'fixed', zIndex:7856756786578567685768, transition: '.4s ease-in-out', left: '50%', transform: 'translatex(-50%)', top: success,}} severity="success"><strong>{'Success!'}</strong> {successMessage}</Alert>
+      <Alert className='container shadow-lg' style={{maxWidth: '500px', position: 'fixed', zIndex:78567685768, transition: '.4s ease-in-out', left: '50%', transform: 'translatex(-50%)', top: success,}} severity="success"><strong>{'Success!'}</strong> {successMessage}</Alert>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -852,7 +896,7 @@ useEffect(() => {
               <Typography sx={{ color: 'text.primary' }}>Notepad</Typography>
             </Breadcrumbs>
           </div>
-        <div className='container d-flex' style={{gap: '20px'}}>            {
+        <div className='container d-flex viewNotesBannersLarge' style={{gap: '20px'}}>            {
               userName !== '' && sortedItems.length > 0 ? (
                 <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, backgroundPosition: 'center', objectFit: 'cover', height: '25vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', width: 'calc(50% - 10px)'}}>
               <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
@@ -874,9 +918,13 @@ useEffect(() => {
       <div className='container'>
         <h4 className='mb-3'><strong>My Notes</strong></h4>
         {
-          notes.length > 0 ? notes.map((note, index)=> (
+          notes.length > 0 ? notes
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .map((note, index)=> (
             <div key={index} role='button' onClick={()=> {
               navigate("/notepad/"+note.id, { replace: false });
+              setNewNoteEdit(note.notes);
+              setNewNoteTitleEdit(note.title);
               setNoteView(true);
               setViewNote(note);
             }}
@@ -901,7 +949,7 @@ useEffect(() => {
 
         
 
-        <form className='SingleNotePage' style={{width: '100vw' }}>
+        <form  onSubmit={(e)=> handleNoteEdit(e, viewNote.id)} className='SingleNotePage' style={{width: '100vw', height: '100%'}}>
             <div className='container notepadContainer py-3'>
               <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize='small' />}>
                 <Link underline="hover" color="inherit" href="/#" onClick={()=> {
@@ -917,7 +965,7 @@ useEffect(() => {
                 }}>
                   Notepad
                 </Link>
-                <Typography sx={{ color: 'text.primary' }}>Go home and have a rest</Typography>
+                <Typography sx={{ color: 'text.primary' }}>{newNoteTitleEdit || viewNote?.title}</Typography>
               </Breadcrumbs>
             </div>
   
@@ -926,16 +974,21 @@ useEffect(() => {
                 <div className='d-flex justify-content-end align-items-center'><div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
                 <div>
                   <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Edit Item</h5></div>
-                  <h2 className='fw-bold noteUpcoming'>{viewNote ? viewNote.title : 'Loading...'}</h2>
+                  {/* <h2 className='fs-2 fw-bold noteUpcoming'>{viewNote ? viewNote.title : 'Loading...'}</h2> */}
+                  <input className='fs-2 fw-bold noteUpcoming rounded-4 border-0 bg-transparent text-light w-100' placeholder='Write here...' style={{lineHeight: 2}} value={newNoteTitleEdit}  onChange={(e)=> setNewNoteTitleEdit(e.target.value)} />
                 </div>
               </div>
+              <div className='container mt-3 mb-3 d-flex justify-content-between align-items-center'>
+                <h4 className='mb-3'><strong>Leave a Note</strong></h4>
+                <MoodIcon className='greetingMenu' role='button' fontSize='large'/>
+              </div>
   
-              <div className='container upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bg-black' >
-                <textarea className='rounded-4 border-0 bg-transparent text-light fs-5' placeholder='Write here...' style={{minHeight: '50vh', lineHeight: 2}} value={viewNote?.notes}>
+              <div className='container upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-between rounded-5 shadow itemBg' >
+                <textarea className='rounded-4 border-0 bg-transparent text-light fs-6' placeholder='Write here...' style={{minHeight: '100%', lineHeight: 2}} value={newNoteEdit} onChange={(e)=> setNewNoteEdit(e.target.value)}>
                   
                 </textarea>
               </div>
-              <div className='container d-flex justify-content-end p-0'><Button className='m-0 text-light border w-100 rounded-3 p-2' style={{backgroundColor: '#3e00c3', minWidth: '200px'}}>Update Changes</Button></div>
+              <div className='container d-flex justify-content-end p-0 upcomingBanner'><Button type='submit' role='button' className='m-0 text-light border w-100 rounded-4 p-3' style={{backgroundColor: '#3e00c3', minWidth: '200px'}}>Update Changes</Button></div>
         </form>
 
 

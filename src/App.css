@@ -23,7 +23,7 @@ body {
 }
 .menuBox {
   background-color: var(--item-bg);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 .itemBg {
   background-color: var(--item-bg);
@@ -186,13 +186,17 @@ footer {
 
 
 
-.NotepadPage {
+.NotepadPage, .SingleNotePage {
   .noteUpcoming {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     min-height: 3rem;
     max-height: 3rem;
+  }
+  input:active, input:focus {
+    border: none;
+    outline: none;
   }
 }
 
@@ -226,8 +230,23 @@ footer {
     height: 28vh !important;
   }
   .upcomingBanner {
-    max-width: 95% !important;
     margin-top: 15px !important;
+    max-width: 100% !important;
+    width: 100% !important;
     /* height: 28vh !important; */
+  }
+  .SingleNotePage .upcomingBanner {
+    max-width: 95% !important;
+    /* height: 28vh !important; */
+  }
+  .viewNotesBannersLarge {
+    flex-direction: column !important;
+    gap: 10px !important;
+    .upcomingBanner {
+      max-width: 100% !important;
+      width: 100% !important;
+      height: fit-content !important;
+      margin-top: 5px !important;
+    }
   }
 }
