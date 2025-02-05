@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { motion } from 'framer-motion';
 import MoodIcon from '@mui/icons-material/Mood';
-import { Alert, Avatar, AvatarGroup } from '@mui/material';
+import { Alert, Avatar, AvatarGroup, Box, Popper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
@@ -94,6 +94,15 @@ const avatars = [
   './100506-ironman2-hmed.webp',
 ]
 
+const emojis = [
+  { emoji: "😂", name: "Face with Tears of Joy" },
+  { emoji: "❤️", name: "Red Heart" },
+  { emoji: "🤣", name: "Rolling on the Floor Laughing" },
+  { emoji: "👍", name: "Thumbs Up" },
+  { emoji: "😭", name: "Loudly Crying Face" },
+  { emoji: "🙏", name: "Folded Hands" },
+  { emoji: "😘", name: "Face Blowing a Kiss" }
+];
 
 
 const RandomId = (length) => {
@@ -156,6 +165,7 @@ function Page() {
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [notePad, setNotePad] = useState(false);
   const [noteView, setNoteView] = useState(false);
+  const [isNewNote, setIsNewNote] = useState(false);
   const [audioSrc, setAudioSrc] = useState(null);
   const [viewNote, setViewNote] = useState(null);
   const audioRef = useRef(null); 
@@ -181,10 +191,7 @@ function Page() {
     ]; // Load existing items from localStorage or default to []
   });
   const [notes, setNotes ] = useState(() => {
-    return JSON.parse(localStorage.getItem('MyNotes')) || [
-      {"id":"#3m4n5o6jkehrt8957tgp7q8r", "notes": "Will finish reading chapter 4 of the novel \"Rich Dad Poor Dad\". Ensure to mark down page markers and bookmarks! Noice...", "title":"Finish reading a novel","time":"08:00","date":"2025-05-07","emoji":'😊'}
-    ]; // Load existing items from localStorage or default to []
-  });
+    return JSON.parse(localStorage.getItem('MyNotes')) || [];});
   const [darkMode, setDarkMode ] = useState(() => {
     return JSON.parse(localStorage.getItem('isDarkMode')) || false;
   });
@@ -195,6 +202,7 @@ function Page() {
   const [storedAvatar, setStoredAvatar] = useState('');  
   const [newNoteEdit, setNewNoteEdit] = useState('');  
   const [newNoteTitleEdit, setNewNoteTitleEdit] = useState('');  
+  const [pickedEmoji, setPickedEmoji] = useState('');  
   const [open, setOpen] = useState(false);
   const [showItemModal, setShowItemModal] = useState(false);
   const [showConfirmDeletion, setShowConfirmDeletion] = useState(false);
@@ -217,8 +225,26 @@ function Page() {
     title: newNoteTitleEdit,
     time: currentDateTime('time'),
     date: currentDateTime('date'),
-    emoji: '🎬',
+    emoji: pickedEmoji,
   });
+  const containerRef = useRef(null);
+  const activePageRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(false);
+
+  useEffect(() => {
+    if (containerRef.current && activePageRef.current) {
+      containerRef.current.style.height = `${(activePageRef.current.scrollHeight) + 120}px`;
+    }
+  }, [notePad, noteView]);
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     setNewNote(prev => ({
@@ -226,9 +252,10 @@ function Page() {
       notes: newNoteEdit,
       title: newNoteTitleEdit,
       time: currentDateTime('time'),
-      date: currentDateTime('date')
+      date: currentDateTime('date'),
+      emoji: pickedEmoji
     }));
-  }, [viewNote?.id, newNoteEdit, newNoteTitleEdit])
+  }, [viewNote?.id, newNoteEdit, newNoteTitleEdit, notes, success, pickedEmoji])
   
   // console.log(currentDateTime('time'))
 
@@ -433,13 +460,14 @@ function successAlert(name, completed) {
   if(!completed){
   setSuccess(20)
   setSuccessMessage(name)  
-  setAudioSrc(name.includes('deleted') ? './pop-39222.mp3' : './success.mp3');
+  setAudioSrc(name.includes('deleted') ? '/pop-39222.mp3' : '/success.mp3');
   setTimeout(() => {
     setSuccess(-200);
     setAudioSrc(null);
   }, 5000);
   }
 }
+
 useEffect(() => {
   if (audioSrc && audioRef.current) {
     audioRef.current.play();
@@ -569,26 +597,44 @@ useEffect(() => {
 const handleNoteEdit = (e, id) => {
   e.preventDefault();
 
-  const updatedNotes = notes.filter((item) => item.id !== id);
 
-  // Correct way to update state
-  setNotes([...updatedNotes, newNote]);
+  const updatedNotes = notes.map(note => 
+    note.id === id ? { ...note, ...newNote } : note
+  );
 
-  if(notes.length - updatedNotes.length === 1){
-    successAlert('Note updated Successfully!', false)
-    localStorage.setItem('MyNotes', JSON.stringify(notes));
-  } else {
-    alert('There was an error updating note!')
-  }
+  setNotes(updatedNotes);
+  localStorage.setItem('MyNotes', JSON.stringify(updatedNotes)); // Save immediately
 
-
-
+  successAlert('Note updated Successfully!', false);
+  setTimeout(() => {
+    setNoteView(false)
+  }, 2000);
 };
+
+const handleNewNote = (e) => {
+  e.preventDefault();
+  
+  if (isNewNote) {
+    setNotes(prev => {
+      const updatedNotes = [...prev, newNote];
+      localStorage.setItem('MyNotes', JSON.stringify(updatedNotes));
+      return updatedNotes;
+    });
+
+    setTimeout(() => {
+      setNoteView(false);
+      successAlert('New Note added successfully!', false);
+      console.log(notes)
+    }, 200);
+  }
+};
+
+
 
 
   return (
     <div className="Home">
-      <audio ref={audioRef} src={audioSrc} />
+      <audio ref={audioRef} src={audioSrc} autoPlay />
       <Alert className='container shadow-lg' style={{maxWidth: '500px', position: 'fixed', zIndex:78567685768, transition: '.4s ease-in-out', left: '50%', transform: 'translatex(-50%)', top: success,}} severity="success"><strong>{'Success!'}</strong> {successMessage}</Alert>
       <Dialog
         open={open}
@@ -797,13 +843,13 @@ const handleNoteEdit = (e, id) => {
 
 
       <div className='' style={{ width: '100%', overflow: 'hidden' }}>
-        <div className='d-flex' style={{ width: '300vw', transition: 'transform 0.5s ease-in-out', transform: `translateX(${notePad ? (noteView ? '-200vw' : '-100vw') : '0vw'})` }}>
+        <div className='d-flex' ref={containerRef}  style={{ width: '300vw', transition: 'transform 0.5s ease-in-out', transform: `translateX(${notePad ? (noteView ? '-200vw' : '-100vw') : '0vw'})`, alignItems: 'flex-start'}}>
 
 
 
 
 
-          <div className='HomePage' style={{ width: '100vw', zIndex: 1 }}>
+          <div className='HomePage' ref={notePad ? null : activePageRef} style={{ width: '100vw', zIndex: 1 }}>
             <div className='container heroBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow' style={{}}>
               <h2 className='fw-bold'>{userName ? 'Welcome back '+userName.split(' ')[0] : 'Welcome to ToDo'},</h2>
               <div className='d-flex justify-content-between align-items-center'><small>Having a good {(new Date()).getHours() <= 12 ? 'morning' : (new Date()).getHours() >= 19 ? 'night' : "afternoon"}?</small> <small>{currentTime}</small></div>
@@ -874,6 +920,46 @@ const handleNoteEdit = (e, id) => {
               </div>
       
               <div className='text-center mt-4'>Completed <strong>{completedItems}</strong> of <strong>{items.length}</strong></div>
+
+
+
+
+              
+              <div className='mt-5 mb-4 d-flex flex-column gap-4' style={{minHeight: 'none'}}>
+                <h4 className='mb-3'><strong>Overdue ToDo Items</strong></h4>
+                {
+                  userName === '' ? (
+                <div className='border itemBg p-2 gap-2 d-flex flex-column justify-content-center align-items-center' style={{height: '30vh'}}>
+                  <ion-icon role='button' name="alert-circle-outline" style={{color: 'red'}}></ion-icon>
+                  You do not have any item in you To-do
+                  <p><small>Login & Create a new item to get started.</small></p>
+                </div>
+                  ) : (
+                    filteredItems.map((item, index)=> (             
+                    <div
+                      key={index}
+                      className={`item rounded p-3 py-4 d-flex gap-3 itemBg ${item.complete ? 'completed' : ''}`}
+                      style={{ backgroundColor: item.complete ? (darkMode ? 'transparent' : 'white') : darkMode ? '#11212D' : 'whitesmoke', border: item.complete ? (darkMode ? '1px solid rgba(128, 128, 128, 0.835)' : '1px solid gainsboro') : darkMode ? '' : '1px solid gray'}}
+                      >
+                      <input
+                        style={{ height: '20px', width: '20px' }}
+                        type="checkbox"
+                        checked={item.complete}
+                        onChange={() => {
+                          toggleComplete(item.id);
+                          successAlert('"' + item.name + '"'+ ' completed successfully!', item.complete)
+                        }}
+                      />
+                      <div className="ml-3" style={{ flex: 1 }}>
+                        <h5 className={item.complete ? 'strikethrough' : ''}>{item.name}</h5>
+                        <small  className={item.complete ? 'strikethrough' : ''}>{item.time} | {checkDate(item.date)}</small>
+                      </div>
+                      <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(item.id)} style={{ color: 'red' }}></ion-icon>
+                    </div>
+                    ))
+                  )
+                }
+              </div>
             </div>
           </div>
 
@@ -884,7 +970,7 @@ const handleNoteEdit = (e, id) => {
 
 
 
-        <div className='NotepadPage' style={{width: '100vw' }}>
+        <div className='NotepadPage'  ref={notePad && !noteView ? activePageRef : null} style={{width: '100vw' }}>
           <div className='container notepadContainer py-3'>
             <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize='small' />}>
               <Link underline="hover" color="inherit" href="/#" onClick={()=> {
@@ -910,7 +996,14 @@ const handleNoteEdit = (e, id) => {
                 </div>
               )
             }
-          <div role='button' className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light align-items-center justify-content-center rounded-5 shadow' style={{flex: 1, backgroundColor: 'rgba(0, 0, 0)', height: '25vh'}}>
+          <div role='button' className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light align-items-center justify-content-center rounded-5 shadow' style={{flex: 1, backgroundColor: 'rgba(0, 0, 0)', height: '25vh'}} onClick={()=> {
+            setViewNote(null);
+            setIsNewNote(true);
+            setNoteView(true);
+            setNewNoteEdit('');
+            setNewNoteTitleEdit('');
+            setPickedEmoji('');
+          }}>
             <h1 className='fw-bold upcomindTitle'><AddCircleOutline fontSize='large'/></h1>
           </div>
         </div>
@@ -927,6 +1020,7 @@ const handleNoteEdit = (e, id) => {
               setNewNoteTitleEdit(note.title);
               setNoteView(true);
               setViewNote(note);
+              setPickedEmoji(note.emoji);
             }}
             className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
                 <h2 className='fw-bold upcomindTitle noteUpcoming'>{note.title}</h2>
@@ -935,7 +1029,7 @@ const handleNoteEdit = (e, id) => {
               </div>
           )) : (
             <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
-              <h5 className='fw-bold text-center'>No Upcoming Items</h5>
+              <h5 className='fw-bold text-center'>You do Not have any Notes</h5>
             </div>
           )
         }
@@ -949,7 +1043,7 @@ const handleNoteEdit = (e, id) => {
 
         
 
-        <form  onSubmit={(e)=> handleNoteEdit(e, viewNote.id)} className='SingleNotePage' style={{width: '100vw', height: '100%'}}>
+        <form  onSubmit={(e)=> isNewNote ? handleNewNote(e) : handleNoteEdit(e, viewNote.id)} ref={notePad && noteView ? activePageRef : null} className='SingleNotePage' style={{width: '100vw', height: '100%'}}>
             <div className='container notepadContainer py-3'>
               <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize='small' />}>
                 <Link underline="hover" color="inherit" href="/#" onClick={()=> {
@@ -973,18 +1067,26 @@ const handleNoteEdit = (e, id) => {
             className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}              >
                 <div className='d-flex justify-content-end align-items-center'><div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
                 <div>
-                  <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Edit Item</h5></div>
+                  <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>{isNewNote ? 'New' : 'Edit'} Item</h5></div>
                   {/* <h2 className='fs-2 fw-bold noteUpcoming'>{viewNote ? viewNote.title : 'Loading...'}</h2> */}
-                  <input className='fs-2 fw-bold noteUpcoming rounded-4 border-0 bg-transparent text-light w-100' placeholder='Write here...' style={{lineHeight: 2}} value={newNoteTitleEdit}  onChange={(e)=> setNewNoteTitleEdit(e.target.value)} />
+                  <input className='fs-2 fw-bold noteUpcoming rounded-4 border-0 bg-transparent text-light w-100' placeholder='Note Title' style={{lineHeight: 2}} value={newNoteTitleEdit}  onChange={(e)=> setNewNoteTitleEdit(e.target.value)} />
                 </div>
               </div>
               <div className='container mt-3 mb-3 d-flex justify-content-between align-items-center'>
                 <h4 className='mb-3'><strong>Leave a Note</strong></h4>
-                <MoodIcon className='greetingMenu' role='button' fontSize='large'/>
+              <div style={{position: 'relative'}}>
+                {pickedEmoji !== '' ? <div className='greetingMenu fs-3' role='button' fontSize='large' onClick={event => setAnchorEl(anchorEl ? null : event.currentTarget)}>{pickedEmoji}</div> : <MoodIcon className='greetingMenu' role='button' fontSize='large' onClick={event => setAnchorEl(!anchorEl)}/>}
+                {anchorEl && <div className='d-flex gap-1 p-2 bg-black fs-5 text-light rounded-2' style={{position: 'absolute', top: '-2.8rem', right: 0}}>
+                  {emojis.map((emoji, index) => <span key={index} role='button' onClick={()=> {
+                    setPickedEmoji(emoji.emoji);
+                    setAnchorEl(!anchorEl);
+                  }} title={emoji.name}>{emoji.emoji}</span>)}
+                </div>}
+              </div>
               </div>
   
               <div className='container upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-between rounded-5 shadow itemBg' >
-                <textarea className='rounded-4 border-0 bg-transparent text-light fs-6' placeholder='Write here...' style={{minHeight: '100%', lineHeight: 2}} value={newNoteEdit} onChange={(e)=> setNewNoteEdit(e.target.value)}>
+                <textarea rows={20} className='rounded-4 border-0 bg-transparent' placeholder='Write Note here...' style={{minHeight: '100%', lineHeight: 2}} value={newNoteEdit} onChange={(e)=> setNewNoteEdit(e.target.value)}>
                   
                 </textarea>
               </div>

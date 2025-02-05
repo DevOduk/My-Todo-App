@@ -31,6 +31,23 @@ body {
 }
 
 
+.SingleNotePage, .NotepadPage, .HomePage {
+  display: block !important;
+  min-height: 100vh;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .bgColorBlend {
@@ -43,6 +60,10 @@ body {
 textarea:active, textarea:focus {
   border: none;
   outline: none;
+}
+textarea {
+  color: var(--text-color);
+  font-size: 1.3rem;
 }
 
 .greetingMenu {
