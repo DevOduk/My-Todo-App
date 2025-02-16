@@ -39,7 +39,14 @@ body {
 
 
 
-
+.NoteContent {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.2rem;
+  max-height: 2.2rem;
+  max-width: 100%;
+}
 
 
 
@@ -52,6 +59,7 @@ body {
 
 .bgColorBlend {
   background-color: rgba(0, 0, 0, 0.6) !important;
+  background-position: center !important;
 }
 .notepadBreadcrumm:hover {
   cursor: pointer;
@@ -215,6 +223,7 @@ footer {
     min-height: 3rem;
     max-height: 3rem;
   }
+
   input:active, input:focus {
     border: none;
     outline: none;

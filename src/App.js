@@ -64,7 +64,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
       height: '100%',
       left: 0,
       top: 0,
-      backgroundRepeat: 'no-repeat',
+     
       backgroundPosition: 'center',
       backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
         '#fff',
@@ -132,6 +132,8 @@ const checkDate = (dateString) => {
 };
 
 
+// console.log(new Date() > new Date('2027-02-09'))
+
 
 const currentDateTime = (current)=> {
   const newDate = new Date();
@@ -197,6 +199,7 @@ function Page() {
   });
   const [search, setSearch] = useState('');  
   const [filteredItems, setFilteredItems ] = useState([]);  
+  const [OverdueItems, setOverdueItems ] = useState([]);  
   const [userName, setUserName] = useState('');  
   const [selectedAvatar, setSelectedAvatar] = useState(avatars[Math.floor(Math.random() * avatars.length)]);  
   const [storedAvatar, setStoredAvatar] = useState('');  
@@ -232,8 +235,13 @@ function Page() {
   const [anchorEl, setAnchorEl] = useState(false);
 
   useEffect(() => {
+    console.log(activePageRef.current.className)
     if (containerRef.current && activePageRef.current) {
-      containerRef.current.style.height = `${(activePageRef.current.scrollHeight) + 120}px`;
+      if(activePageRef.current.className === 'HomePage'){
+        containerRef.current.style.height = 'fit-content'
+      } else{
+      containerRef.current.style.height = `${notePad ? ((activePageRef.current.scrollHeight) + 120) : ((activePageRef.current.scrollHeight) + 0)}px`;
+      }
     }
   }, [notePad, noteView]);
 
@@ -479,9 +487,13 @@ useEffect(() => {
 const handleSearch = (searchParam) => {
   setSearch(searchParam); // Ensure the state updates
   const filteredSearch = items
-  .filter((item) => 
-    item.name.toLowerCase().includes(searchParam.toLowerCase())
-  )
+  .filter((item) => {
+    const itemDateTime = new Date(item.date + ' ' + item.time); // Convert item date & time to full Date object
+    const now = new Date(); // Current date & time
+  
+    // Exclude overdue items and apply search filter
+    return itemDateTime > now && item.name.toLowerCase().includes(searchParam.toLowerCase());
+  })   
   .sort((a, b) => new Date(a.date) - new Date(b.date));
   setFilteredItems(filteredSearch);
 };
@@ -489,7 +501,13 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const sortedItems = items
-.filter(item => item.complete !== true)
+.filter((item) => {
+  const itemDateTime = new Date(item.date + ' ' + item.time); // Convert item date & time to full Date object
+  const now = new Date(); // Current date & time
+
+  // Exclude overdue items and apply search filter
+  return itemDateTime > now && !item.complete;
+}) 
 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
 
@@ -628,6 +646,18 @@ const handleNewNote = (e) => {
     }, 200);
   }
 };
+
+
+useEffect(() => {
+  const updatedOverdueItems = items.filter(item => {
+    const itemDateTime = new Date(item.date + ' ' + item.time); // Convert item date & time to full Date object
+    const now = new Date(); // Current date & time
+  
+    // Exclude overdue items and apply search filter
+    return itemDateTime < now; // Check if the item date is in the past
+  });
+    setOverdueItems(updatedOverdueItems);
+}, [items])
 
 
 
@@ -856,13 +886,13 @@ const handleNewNote = (e) => {
             </div>
             {
               userName !== '' && sortedItems.length > 0 ? (
-            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, height: '20vh', backgroundBlendMode: 'multiply'}}>
               <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
               <h2 className='fw-bold'>{sortedItems[0]?.name},</h2>
               <div className='d-flex justify-content-between align-items-center'><small>Time: {sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer' }}></ion-icon></div></div>
             </div>
               ) : (
-                <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+                <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, height: '20vh', backgroundBlendMode: 'multiply'}}>
                   <h5 className='fw-bold text-center'>No Upcoming Items</h5>
                 </div>
               )
@@ -918,9 +948,6 @@ const handleNewNote = (e) => {
                   <ion-icon role='button' name="trash-outline" style={{color: 'red'}}></ion-icon>
                 </div> */}
               </div>
-      
-              <div className='text-center mt-4'>Completed <strong>{completedItems}</strong> of <strong>{items.length}</strong></div>
-
 
 
 
@@ -931,11 +958,11 @@ const handleNewNote = (e) => {
                   userName === '' ? (
                 <div className='border itemBg p-2 gap-2 d-flex flex-column justify-content-center align-items-center' style={{height: '30vh'}}>
                   <ion-icon role='button' name="alert-circle-outline" style={{color: 'red'}}></ion-icon>
-                  You do not have any item in you To-do
-                  <p><small>Login & Create a new item to get started.</small></p>
+                  You do not have any Overdue item in your To-do
+                  <p><small>Your overdue items will appear here.</small></p>
                 </div>
                   ) : (
-                    filteredItems.map((item, index)=> (             
+                    OverdueItems.map((item, index)=> (             
                     <div
                       key={index}
                       className={`item rounded p-3 py-4 d-flex gap-3 itemBg ${item.complete ? 'completed' : ''}`}
@@ -960,6 +987,13 @@ const handleNewNote = (e) => {
                   )
                 }
               </div>
+
+      
+              <div className='text-center mt-4'>Completed <strong>{completedItems}</strong> of <strong>{items.length}</strong></div>
+
+
+
+
             </div>
           </div>
 
@@ -984,14 +1018,21 @@ const handleNewNote = (e) => {
           </div>
         <div className='container d-flex viewNotesBannersLarge' style={{gap: '20px'}}>            {
               userName !== '' && sortedItems.length > 0 ? (
-                <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, backgroundPosition: 'center', objectFit: 'cover', height: '25vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', width: 'calc(50% - 10px)'}}>
+            <div role='button' className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, height: '25vh', backgroundBlendMode: 'multiply', width: 'calc(50% - 10px)'}} onClick={()=> {
+              setViewNote(null);
+              setIsNewNote(true);
+              setNoteView(true);
+              setNewNoteEdit('');
+              setNewNoteTitleEdit(sortedItems[0]?.name);
+              setPickedEmoji('');
+            }}>
               <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>Upcoming Item</h5></div>
               <h2 className='fw-bold noteUpcoming'>{sortedItems[0]?.name}</h2>
               <div className='d-flex justify-content-between align-items-center'><p>Add a note for this event.</p></div>
               <div className='d-flex justify-content-between align-items-center'><small>{sortedItems[0]?.time}, {sortedItems[0]?.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
             </div>
               ) : (
-                <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, backgroundPosition: 'center', objectFit: 'cover', height: '25vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', width: 'calc(50% - 10px)'}}>
+                <div className='upcomingBanner p-4 mt-3 mb-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, flex: 1, height: '25vh', backgroundBlendMode: 'multiply', width: 'calc(50% - 10px)'}}>
                   <h5 className='fw-bold text-center'>No Upcoming Items</h5>
                 </div>
               )
@@ -1022,13 +1063,13 @@ const handleNewNote = (e) => {
               setViewNote(note);
               setPickedEmoji(note.emoji);
             }}
-            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-end rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, height: '20vh', backgroundBlendMode: 'multiply'}}>
                 <h2 className='fw-bold upcomindTitle noteUpcoming'>{note.title}</h2>
-                  <div className='d-flex justify-content-between align-items-center'><small>{note.notes}</small></div>
+                  <div className='d-flex justify-content-between align-items-center NoteContent'><small>{note.notes}</small></div>
                   <div className='d-flex justify-content-between align-items-center'><small>{note.emoji} Last editted: {note.time}, {note.date}</small> <div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(note.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
               </div>
           )) : (
-            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}>
+            <div className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-center rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, height: '20vh', backgroundBlendMode: 'multiply'}}>
               <h5 className='fw-bold text-center'>You do Not have any Notes</h5>
             </div>
           )
@@ -1064,7 +1105,7 @@ const handleNewNote = (e) => {
             </div>
   
               <div 
-            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, backgroundPosition: 'center', objectFit: 'cover', height: '20vh', backgroundBlendMode: 'multiply', backgroundRepeat: 'no-repeat', backgroundSize: 'cover'}}              >
+            className='container upcomingBanner p-4 mt-3 d-flex flex-column text-light justify-content-between rounded-5 shadow bgColorBlend' style={{background: `url(${storedAvatar})`, height: '20vh', backgroundBlendMode: 'multiply'}}              >
                 <div className='d-flex justify-content-end align-items-center'><div className='d-flex align-items-center'> <ion-icon role="button" name="trash-outline" onClick={()=> handleDeleteClick(sortedItems[0]?.id)} style={{ color: 'red', cursor: 'pointer', fontSize: '1.5rem' }}></ion-icon></div></div>
                 <div>
                   <div className='d-flex justify-content-between align-items-center upcomindTitle'><h5>{isNewNote ? 'New' : 'Edit'} Item</h5></div>
@@ -1090,7 +1131,7 @@ const handleNewNote = (e) => {
                   
                 </textarea>
               </div>
-              <div className='container d-flex justify-content-end p-0 upcomingBanner'><Button type='submit' role='button' className='m-0 text-light border w-100 rounded-4 p-3' style={{backgroundColor: '#3e00c3', minWidth: '200px'}}>Update Changes</Button></div>
+              <div className='mt-4 container d-flex justify-content-end p-0 upcomingBanner'><Button type='submit' role='button' className='mt-3 text-light w-100 rounded-3' style={{backgroundColor: '#3e00c3', padding: '12px', minWidth: '200px'}}>{isNewNote ? 'Save' : 'Update Changes'}</Button></div>
         </form>
 
 
